@@ -3,22 +3,37 @@ package com.pethotel.Services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pethotel.Exceptions.RegistrationNotFoundException;
 import com.pethotel.Models.Registration;
 import com.pethotel.Repositories.RegistrationRepository;
 
 @Service
 public class RegistrationServiceImpl implements RegistrationService {
 
+    // store response messages
+    private static class ResponseMessage {
+        private static final String REGISTRATION_ALREADY_EXISTS = "Registration with this ID already exists";
+        private static final String CREATE_REGISTRATION_FAILED = "Failed creating registration. Please try again";
+    }
 
     @Autowired
     private RegistrationRepository registrationRepository;
 
-
     @Override
-    public Registration createRegistration(Registration registration) {
-        return registrationRepository.save(registration);
+    public ResponseEntity<?> createRegistration(Registration registration) {
+        try {
+            if (registrationRepository.existsById(registration.getId())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ResponseMessage.REGISTRATION_ALREADY_EXISTS);
+        }
+
+        return ResponseEntity.ok(registrationRepository.save(registration));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseMessage.CREATE_REGISTRATION_FAILED); 
+        }
     }
 
 
@@ -30,10 +45,9 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public Registration getRegistrationById(Long id) {
-
         return registrationRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Registration not found"));
+                        new RegistrationNotFoundException(id));
     }
 
 
