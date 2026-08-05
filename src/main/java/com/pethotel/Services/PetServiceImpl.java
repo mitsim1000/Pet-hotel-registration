@@ -3,12 +3,14 @@ package com.pethotel.Services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 import com.pethotel.Exceptions.InvalidPetException;
 import com.pethotel.Exceptions.PetNotFoundException;
 import com.pethotel.Models.Pet;
 import com.pethotel.Repositories.PetRepository;
 
+@Service
 public class PetServiceImpl implements PetService {
     // store response messages
     private static class ResponseMessage {
