@@ -16,8 +16,8 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     // store response messages
     private static class ResponseMessage {
-        private static final String REGISTRATION_ALREADY_EXISTS = "Registration with this ID already exists";
         private static final String CREATE_REGISTRATION_FAILED = "Failed creating registration. Please try again";
+        private static final String OVERLAPPING_REGISTRATION_EXISTS = "An overlapping registration for this pet was found";
     }
 
     @Autowired
@@ -25,12 +25,14 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public ResponseEntity<?> createRegistration(Registration registration) {
-        try {
-            if (registrationRepository.existsById(registration.getId())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(ResponseMessage.REGISTRATION_ALREADY_EXISTS);
-        }
-
-        return ResponseEntity.ok(registrationRepository.save(registration));
+        try {	            
+	        boolean isOverlapping = registrationRepository.existsOverlappingRegistration(registration.getPet().getId(), registration.getCheckInDate(), registration.getCheckOutDate());
+	
+	        if (isOverlapping) {
+	        	return ResponseEntity.status(HttpStatus.CONFLICT).body(ResponseMessage.OVERLAPPING_REGISTRATION_EXISTS);
+	        }
+	        
+	        return ResponseEntity.ok(registrationRepository.save(registration));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseMessage.CREATE_REGISTRATION_FAILED); 
         }
