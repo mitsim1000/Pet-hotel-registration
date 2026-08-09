@@ -1,22 +1,15 @@
 package com.pethotel.Models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
-@Entity
-public class HotelStaff {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String username;
+public class HotelStaffLoginCredentials {
+	private String username;
     private String password;
 
-    public Long getId() {
-        return id;
+    public HotelStaffLoginCredentials() {
+    }
+
+    public HotelStaffLoginCredentials(String username, String password) {
+        this.username = username;
+        this.password = password;
     }
 
     public String getUsername() {
