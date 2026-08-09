@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 public class Pet {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String species;

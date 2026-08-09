@@ -27,22 +27,13 @@ public class PetServiceImpl implements PetService {
 
     @Override
     public ResponseEntity<?> createPet(Pet pet) {
-        try {
-            if (petRepository.existsById(pet.getId())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(ResponseMessage.PET_ALREADY_EXISTS);
-        }
-
-        if (!validatePet(
-                pet.getSpecies(),
-                pet.getBreed()
-            )
-        ) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage.INVALID_PET);
-        }
-
-        return ResponseEntity.ok(petRepository.save(pet));
+    	try {
+            if (!validatePet(pet.getSpecies(), pet.getBreed())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseMessage.INVALID_PET);
+            }
+            return ResponseEntity.ok(petRepository.save(pet));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseMessage.CREATE_PET_FAILED); 
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseMessage.CREATE_PET_FAILED);
         }
     }
 
