@@ -38,6 +38,7 @@ public class SecurityConfig {
             .httpBasic(httpBasic -> httpBasic.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/pets/**").hasAuthority("STAFF")
                 .requestMatchers("/registrations/**").hasAuthority("STAFF")
                 .anyRequest().authenticated()

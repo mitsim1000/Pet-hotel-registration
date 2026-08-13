@@ -7,8 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pethotel.Exceptions.PetNotFoundException;
 import com.pethotel.Exceptions.RegistrationNotFoundException;
+import com.pethotel.Models.Pet;
 import com.pethotel.Models.Registration;
+import com.pethotel.Repositories.PetRepository;
 import com.pethotel.Repositories.RegistrationRepository;
 
 @Service
@@ -23,10 +26,19 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Autowired
     private RegistrationRepository registrationRepository;
 
+    @Autowired
+    private PetRepository petRepository;
+
     @Override
     public ResponseEntity<?> createRegistration(Registration registration) {
-        try {	            
-	        boolean isOverlapping = registrationRepository.existsOverlappingRegistration(registration.getPet().getId(), registration.getCheckInDate(), registration.getCheckOutDate());
+        try {
+            Pet pet = petRepository.findById(registration.getPet().getId())
+                    .orElseThrow(() ->
+                            new PetNotFoundException(registration.getPet().getId()));
+
+            registration.setPet(pet);	        
+
+	        boolean isOverlapping = registrationRepository.existsOverlappingRegistration(pet.getId(), registration.getCheckInDate(), registration.getCheckOutDate());
 	
 	        if (isOverlapping) {
 	        	return ResponseEntity.status(HttpStatus.CONFLICT).body(ResponseMessage.OVERLAPPING_REGISTRATION_EXISTS);
@@ -60,7 +72,11 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         Registration existingRegistration = getRegistrationById(id);
 
-        existingRegistration.setPet(registration.getPet());
+        Pet pet = petRepository.findById(registration.getPet().getId())
+                .orElseThrow(() ->
+                        new PetNotFoundException(registration.getPet().getId()));
+
+        existingRegistration.setPet(pet);
         existingRegistration.setCheckInDate(registration.getCheckInDate());
         existingRegistration.setCheckOutDate(registration.getCheckOutDate());
 
