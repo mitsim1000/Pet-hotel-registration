@@ -37,6 +37,9 @@ public class AuthController {
     // Register hotel staff
     @PostMapping("/register")
     public Map<String, Object> registerHandler(@RequestBody HotelStaff staff) {
+    	if (hotelStaffRepository.findByUsername(staff.getUsername()).isPresent()) {
+            throw new RuntimeException("Username already exists");
+        }
         String encodedPass = passwordEncoder.encode(staff.getPassword());
         staff.setPassword(encodedPass);
         staff = hotelStaffRepository.save(staff);
